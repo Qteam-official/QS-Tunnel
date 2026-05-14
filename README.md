@@ -43,7 +43,7 @@
 
 ---
 
-## `// 🇬🇧` English Documentation
+## **`🇬🇧`** English Documentation
 
 ### `▸` What is QS-Tunnel?
 
