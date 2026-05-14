@@ -1,8 +1,5 @@
 <div align="center">
-```
 
-
-```
 
 **`[ SPLIT-TUNNEL · UPLOAD:TCP · DOWNLOAD:UDP · IP-SPOOF ]`**
 
