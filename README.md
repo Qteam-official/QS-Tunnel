@@ -9,13 +9,13 @@
 
 <br/>
 
-[![Version](https://img.shields.io/badge/▶_VERSION-1.0.0-00f5ff?style=for-the-badge&labelColor=020510)](https://github.com/Qteam-official/QS-Tunnel/releases)
-[![Go](https://img.shields.io/badge/▶_BUILT_WITH-Go_1.21+-00ADD8?style=for-the-badge&labelColor=020510&logo=go&logoColor=white)](https://golang.org)
-[![Platform](https://img.shields.io/badge/▶_PLATFORM-Linux-ff9500?style=for-the-badge&labelColor=020510&logo=linux&logoColor=white)](https://github.com/Qteam-official/QS-Tunnel)
-[![License](https://img.shields.io/badge/▶_LICENSE-MIT-00ff9f?style=for-the-badge&labelColor=020510)](LICENSE)
+[![Version](https://img.shields.io/badge/▶ VERSION-1.0.0-00f5ff?style=for-the-badge&labelColor=020510)](https://github.com/Qteam-official/QS-Tunnel/releases)
+[![Go](https://img.shields.io/badge/▶ BUILT_WITH-Go_1.21+-00ADD8?style=for-the-badge&labelColor=020510&logo=go&logoColor=white)](https://golang.org)
+[![Platform](https://img.shields.io/badge/▶ PLATFORM-Linux-ff9500?style=for-the-badge&labelColor=020510&logo=linux&logoColor=white)](https://github.com/Qteam-official/QS-Tunnel)
+[![License](https://img.shields.io/badge/▶ LICENSE-MIT-00ff9f?style=for-the-badge&labelColor=020510)](LICENSE)
 
-[![Stars](https://img.shields.io/github/stars/Qteam-official/QS-Tunnel?style=for-the-badge&color=ff2d78&labelColor=020510&logo=github&label=★_STARS)](https://github.com/Qteam-official/QS-Tunnel/stargazers)
-[![Issues](https://img.shields.io/github/issues/Qteam-official/QS-Tunnel?style=for-the-badge&color=bf5fff&labelColor=020510&logo=github&label=⚡_ISSUES)](https://github.com/Qteam-official/QS-Tunnel/issues)
+[![Stars](https://img.shields.io/github/stars/Qteam-official/QS-Tunnel?style=for-the-badge&color=ff2d78&labelColor=020510&logo=github&label=★ STARS)](https://github.com/Qteam-official/QS-Tunnel/stargazers)
+[![Issues](https://img.shields.io/github/issues/Qteam-official/QS-Tunnel?style=for-the-badge&color=bf5fff&labelColor=020510&logo=github&label=⚡ ISSUES)](https://github.com/Qteam-official/QS-Tunnel/issues)
 [![Telegram](https://img.shields.io/badge/TELEGRAM-@Q_teams-2CA5E0?style=for-the-badge&labelColor=020510&logo=telegram)](https://t.me/Q_teams)
 [![YouTube](https://img.shields.io/badge/YOUTUBE-@Q-TEAM-official-FF0000?style=for-the-badge&labelColor=020510&logo=youtube)](https://youtube.com/@Q-TEAM-official)
 
@@ -401,7 +401,7 @@ default     ◀── پایین‌ترین
 <br/>
 
 ```
-[ ⭐ اگه پروژه مفید بود، ستاره بدید! / Star if useful! ⭐ ]
+[ ⭐ اگه پروژه مفید بود، ستاره بدید ! / Star if useful! ⭐ ]
 ```
 
 ```
