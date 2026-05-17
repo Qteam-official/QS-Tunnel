@@ -1,10 +1,4 @@
 // Package reasm — reassembly پکت‌های UDP خارج از ترتیب
-//
-// طراحی:
-//   - fast path: پکت به ترتیب → مستقیم به channel (بدون lock بیشتر)
-//   - slow path: پکت out-of-order → heap
-//   - هیچوقت داده drop نمیشه مگر duplicate
-//   - channel بزرگ (512) → هیچوقت block نمیکنه در شرایط عادی
 package reasm
 
 import (
@@ -16,9 +10,9 @@ import (
 )
 
 const (
-	maxBuffered = 512
+	maxBuffered = 128
 	gapTimeout  = 3 * time.Second
-	chanBuf     = 512 // بزرگ — drop نمیکنیم
+	chanBuf     = 64
 )
 
 type packet struct {
@@ -35,20 +29,15 @@ func (h pktHeap) Less(i, j int) bool  { return h[i].seq < h[j].seq }
 func (h pktHeap) Swap(i, j int)       { h[i], h[j] = h[j], h[i] }
 func (h *pktHeap) Push(x any)         { *h = append(*h, x.(packet)) }
 func (h *pktHeap) Pop() any {
-	old := *h
-	n := len(old)
-	x := old[n-1]
-	*h = old[0 : n-1]
-	return x
+	old := *h; n := len(old); x := old[n-1]; *h = old[:n-1]; return x
 }
 
-// Reassembler
 type Reassembler struct {
-	mu      sync.Mutex
-	heap    pktHeap
-	nextSeq uint32
-	ready   chan []byte
-	closed  atomic.Bool
+	mu        sync.Mutex
+	heap      pktHeap
+	nextSeq   uint32
+	ready     chan []byte
+	closed    atomic.Bool
 
 	delivered atomic.Uint64
 	dropped   atomic.Uint64
@@ -61,8 +50,8 @@ func New(firstSeq uint32) *Reassembler {
 	}
 }
 
-// Push یک packet دریافتی
 func (r *Reassembler) Push(seq uint32, flags byte, data []byte) {
+	// ← اول closed چک کن — جلوگیری از send on closed channel
 	if r.closed.Load() {
 		return
 	}
@@ -70,21 +59,19 @@ func (r *Reassembler) Push(seq uint32, flags byte, data []byte) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	// duplicate یا قدیمی
+	if r.closed.Load() {
+		return
+	}
 	if seq < r.nextSeq {
 		r.dropped.Add(1)
 		return
 	}
-
-	// fast path: ترتیب درست
 	if seq == r.nextSeq {
 		r.put(data)
 		r.nextSeq++
 		r.flush()
 		return
 	}
-
-	// out-of-order: heap
 	if r.heap.Len() < maxBuffered {
 		cp := make([]byte, len(data))
 		copy(cp, data)
@@ -94,25 +81,51 @@ func (r *Reassembler) Push(seq uint32, flags byte, data []byte) {
 	}
 }
 
-// put داده رو به channel میفرسته — هیچوقت drop نمیکنه
-// اگه channel پر شد، blocking میشه (با mutex رها شده)
+// put — با mutex گرفته شده صدا میشه
+// از send on closed channel با recover جلوگیری میکنه
 func (r *Reassembler) put(data []byte) {
+	if r.closed.Load() {
+		return
+	}
 	r.delivered.Add(1)
 
 	cp := make([]byte, len(data))
 	copy(cp, data)
 
-	// سعی non-blocking
-	select {
-	case r.ready <- cp:
-		return
-	default:
+	// safeSend: هیچوقت panic نمیده
+	safeSend := func(ch chan []byte, v []byte) (sent bool) {
+		defer func() {
+			if recover() != nil {
+				sent = false
+			}
+		}()
+		select {
+		case ch <- v:
+			return true
+		default:
+			return false
+		}
 	}
 
-	// channel پر — mutex رو رها کن و blocking بفرست
+	// non-blocking اول
+	if safeSend(r.ready, cp) {
+		return
+	}
+
+	// channel پر — mutex رو رها کن
 	r.mu.Unlock()
-	r.ready <- cp
-	r.mu.Lock()
+	defer r.mu.Lock()
+
+	// blocking با timeout — اگه 100ms گذشت drop کن
+	timer := time.NewTimer(100 * time.Millisecond)
+	defer timer.Stop()
+
+	defer func() { recover() }() // محافظت از send on closed
+	select {
+	case r.ready <- cp:
+	case <-timer.C:
+		r.dropped.Add(1)
+	}
 }
 
 func (r *Reassembler) flush() {
@@ -123,7 +136,6 @@ func (r *Reassembler) flush() {
 	}
 }
 
-// Read داده‌های reassemble شده (blocking)
 func (r *Reassembler) Read(p []byte) (int, error) {
 	data, ok := <-r.ready
 	if !ok {
@@ -138,6 +150,9 @@ func (r *Reassembler) Chan() <-chan []byte {
 
 func (r *Reassembler) Close() {
 	if r.closed.CompareAndSwap(false, true) {
+		// کمی صبر کن تا Push‌های در جریان تموم بشن
+		r.mu.Lock()
+		r.mu.Unlock()
 		close(r.ready)
 	}
 }
@@ -155,10 +170,7 @@ type Manager struct {
 }
 
 func NewManager() *Manager {
-	m := &Manager{
-		all:  make(map[uint32]*Reassembler),
-		done: make(chan struct{}),
-	}
+	m := &Manager{all: make(map[uint32]*Reassembler), done: make(chan struct{})}
 	go m.worker()
 	return m
 }
@@ -175,9 +187,7 @@ func (m *Manager) Unregister(id uint32) {
 	m.mu.Unlock()
 }
 
-func (m *Manager) Stop() {
-	close(m.done)
-}
+func (m *Manager) Stop() { close(m.done) }
 
 func (m *Manager) worker() {
 	tick := time.NewTicker(200 * time.Millisecond)
@@ -198,6 +208,9 @@ func (m *Manager) worker() {
 }
 
 func (r *Reassembler) gapCheck(now time.Time) {
+	if r.closed.Load() {
+		return
+	}
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	if r.closed.Load() {

@@ -17,22 +17,22 @@ import (
 
 type ClientConfig struct {
 	// اتصال به سرور
-	ServerAddr    string `json:"server_addr"`     // آدرس سرور تونل (IP:port)
-	UploadProxy   string `json:"upload_proxy"`    // SOCKS5 آپلود (xray/v2ray/هر چیزی)
-	LocalSocks    string `json:"local_socks"`     // SOCKS5 که مرورگر به اون وصل میشه
-	DownloadPort  int    `json:"download_port"`   // پورت UDP دریافت دانلود
-	MyPublicIP    string `json:"my_public_ip"`    // IP عمومی کلاینت (خودکار اگه خالی)
+	ServerAddr   string `json:"server_addr"`   // آدرس سرور تونل (IP:port)
+	UploadProxy  string `json:"upload_proxy"`  // SOCKS5 آپلود (xray/v2ray/هر چیزی)
+	LocalSocks   string `json:"local_socks"`   // SOCKS5 که مرورگر به اون وصل میشه
+	DownloadPort int    `json:"download_port"` // پورت UDP دریافت دانلود
+	MyPublicIP   string `json:"my_public_ip"`  // IP عمومی کلاینت (خودکار اگه خالی)
 
 	// Transport
-	TransportMode string `json:"transport_mode"`  // "udp" یا "obfs"
-	ObfsKey       string `json:"obfs_key"`        // کلید obfuscation (hex 64 کاراکتر)
+	TransportMode string `json:"transport_mode"` // "udp" یا "obfs"
+	ObfsKey       string `json:"obfs_key"`       // کلید obfuscation (hex 64 کاراکتر)
 
 	// محدودیت‌ها
-	MaxStreams     int    `json:"max_streams"`     // حداکثر اتصال همزمان
+	MaxStreams int `json:"max_streams"` // حداکثر اتصال همزمان
 
 	// Observability
-	MetricsAddr   string `json:"metrics_addr"`    // آدرس HTTP متریک‌ها
-	Verbose       bool   `json:"verbose"`
+	MetricsAddr string `json:"metrics_addr"` // آدرس HTTP متریک‌ها
+	Verbose     bool   `json:"verbose"`
 }
 
 func DefaultClient() ClientConfig {
@@ -41,7 +41,7 @@ func DefaultClient() ClientConfig {
 		LocalSocks:    "127.0.0.1:1080",
 		DownloadPort:  8000,
 		TransportMode: "udp",
-		MaxStreams:     512,
+		MaxStreams:    512,
 		MetricsAddr:   "127.0.0.1:9091",
 	}
 }
@@ -50,48 +50,48 @@ func DefaultClient() ClientConfig {
 
 type ServerConfig struct {
 	// اتصال
-	ListenAddr         string `json:"listen_addr"`          // آدرس TCP listen
-	DownloadSrcPort    int    `json:"download_src_port"`    // پورت UDP برای ارسال دانلود
+	ListenAddr      string `json:"listen_addr"`       // آدرس TCP listen
+	DownloadSrcPort int    `json:"download_src_port"` // پورت UDP برای ارسال دانلود
 
 	// Transport
-	TransportMode      string `json:"transport_mode"`       // "udp" یا "obfs"
-	ObfsKey            string `json:"obfs_key"`
+	TransportMode string `json:"transport_mode"` // "udp" یا "obfs"
+	ObfsKey       string `json:"obfs_key"`
 
 	// IP Spoof (فقط حالت udp)
-	SpoofIP            string `json:"spoof_ip"`             // IP جعلی برای دانلود UDP
-	SpoofInterface     string `json:"spoof_interface"`      // interface خروجی (مثل eth0)
-	SpoofGateway       string `json:"spoof_gateway"`        // gateway (خودکار اگه خالی)
+	SpoofIP        string `json:"spoof_ip"`        // IP جعلی برای دانلود UDP
+	SpoofInterface string `json:"spoof_interface"` // interface خروجی (مثل eth0)
+	SpoofGateway   string `json:"spoof_gateway"`   // gateway (خودکار اگه خالی)
 
 	// TCP خروجی
-	OutboundBindIP     string `json:"outbound_bind_ip"`     // IP مبدا برای اتصال TCP به مقصد
+	OutboundBindIP string `json:"outbound_bind_ip"` // IP مبدا برای اتصال TCP به مقصد
 
 	// محدودیت‌ها
 	MaxClients          int   `json:"max_clients"`
-	MaxStreamsPerClient  int   `json:"max_streams_per_client"`
-	FlowWindowBytes     int64 `json:"flow_window_bytes"`    // پنجره flow control
-	UDPWorkers          int   `json:"udp_workers"`          // تعداد worker UDP
+	MaxStreamsPerClient int   `json:"max_streams_per_client"`
+	FlowWindowBytes     int64 `json:"flow_window_bytes"` // پنجره flow control
+	UDPWorkers          int   `json:"udp_workers"`       // تعداد worker UDP
 
 	// Timeouts
-	DialTimeoutSec      int   `json:"dial_timeout_sec"`
-	IdleTimeoutSec      int   `json:"idle_timeout_sec"`
+	DialTimeoutSec int `json:"dial_timeout_sec"`
+	IdleTimeoutSec int `json:"idle_timeout_sec"`
 
 	// Observability
-	MetricsAddr         string `json:"metrics_addr"`
-	Verbose             bool   `json:"verbose"`
+	MetricsAddr string `json:"metrics_addr"`
+	Verbose     bool   `json:"verbose"`
 }
 
 func DefaultServer() ServerConfig {
 	return ServerConfig{
-		ListenAddr:         "0.0.0.0:9000",
-		DownloadSrcPort:    9001,
-		TransportMode:      "udp",
-		SpoofInterface:     "eth0",
-		MaxClients:         1000,
+		ListenAddr:          "0.0.0.0:9000",
+		DownloadSrcPort:     9001,
+		TransportMode:       "udp",
+		SpoofInterface:      "eth0",
+		MaxClients:          1000,
 		MaxStreamsPerClient: 256,
-		FlowWindowBytes:    256 * 1024,
-		DialTimeoutSec:     8,
-		IdleTimeoutSec:     120,
-		MetricsAddr:        "127.0.0.1:9090",
+		FlowWindowBytes:     256 * 1024,
+		DialTimeoutSec:      8,
+		IdleTimeoutSec:      120,
+		MetricsAddr:         "127.0.0.1:9090",
 	}
 }
 
@@ -244,7 +244,7 @@ func SaveClientExample(path string) error {
 		MyPublicIP:    "",
 		TransportMode: "udp",
 		ObfsKey:       "",
-		MaxStreams:     512,
+		MaxStreams:    10000,
 		MetricsAddr:   "127.0.0.1:9091",
 		Verbose:       false,
 	}
@@ -253,22 +253,22 @@ func SaveClientExample(path string) error {
 
 func SaveServerExample(path string) error {
 	cfg := ServerConfig{
-		ListenAddr:         "0.0.0.0:9000",
-		DownloadSrcPort:    9001,
-		TransportMode:      "udp",
-		ObfsKey:            "",
-		SpoofIP:            "",
-		SpoofInterface:     "",
-		SpoofGateway:       "",
-		OutboundBindIP:     "",
-		MaxClients:         1000,
-		MaxStreamsPerClient: 256,
-		FlowWindowBytes:    262144,
-		UDPWorkers:         0,
-		DialTimeoutSec:     8,
-		IdleTimeoutSec:     120,
-		MetricsAddr:        "127.0.0.1:9090",
-		Verbose:            false,
+		ListenAddr:          "0.0.0.0:9000",
+		DownloadSrcPort:     9001,
+		TransportMode:       "udp",
+		ObfsKey:             "",
+		SpoofIP:             "",
+		SpoofInterface:      "",
+		SpoofGateway:        "",
+		OutboundBindIP:      "",
+		MaxClients:          20000,
+		MaxStreamsPerClient: 5000,
+		FlowWindowBytes:     262144,
+		UDPWorkers:          0,
+		DialTimeoutSec:      8,
+		IdleTimeoutSec:      120,
+		MetricsAddr:         "127.0.0.1:9090",
+		Verbose:             false,
 	}
 	return saveJSON(path, cfg)
 }

@@ -104,8 +104,8 @@ func (s *stream) dial() error {
 		tc.SetNoDelay(true)
 		tc.SetKeepAlive(true)
 		tc.SetKeepAlivePeriod(10 * time.Second)
-		tc.SetReadBuffer(256 * 1024)
-		tc.SetWriteBuffer(256 * 1024)
+		tc.SetReadBuffer(32 * 1024)
+		tc.SetWriteBuffer(32 * 1024)
 	}
 
 	w := newTCPWriter(conn)
@@ -411,7 +411,7 @@ type tcpJob struct {
 }
 
 func newTCPWriter(conn net.Conn) *tcpWriter {
-	w := &tcpWriter{ch: make(chan tcpJob, 512), done: make(chan struct{})}
+	w := &tcpWriter{ch: make(chan tcpJob, 128), done: make(chan struct{})}
 	go w.loop(conn)
 	return w
 }
